@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Local Vendor Digitalization</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-body">
+
+    <header>
+        <div class="container navbar">
+            <h1 class="logo">AdminPortal</h1>
+            <nav>
+                <span class="vendor-nav-name" style="color: #f093fb;">Super Admin</span>
+                <button class="btn btn-outline" onclick="logoutAdmin()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Analytics Section -->
+        <section class="analytics-row fade-in" id="adminAnalyticsRow">
+            <div class="stat-card box-shadow">
+                <h4>Platform Revenue</h4>
+                <p id="admin-stat-revenue">₹0</p>
+            </div>
+            <div class="stat-card box-shadow">
+                <h4>Total Orders</h4>
+                <p id="admin-stat-orders">0</p>
+            </div>
+            <div class="stat-card box-shadow">
+                <h4>Total Vendors</h4>
+                <p id="admin-stat-vendors">0</p>
+            </div>
+        </section>
+
+        <section class="dashboard-section fade-in">
+
+            <!-- Tab Navigation for Admin -->
+            <div class="tab-buttons" style="margin-top: 2rem;">
+                <button class="tab-btn active" onclick="switchAdminTab('orders')" id="tab-orders">All Global
+                    Orders</button>
+                <button class="tab-btn" onclick="switchAdminTab('vendors')" id="tab-vendors">Registered Vendors</button>
+            </div>
+
+            <div class="header-split" style="margin-top: 1rem;">
+                <h2 id="sectionTitle">All Platform Orders</h2>
+                <button class="btn btn-primary" onclick="refreshData()">Refresh Data</button>
+            </div>
+
+            <!-- Orders View -->
+            <div class="table-container fade-in" id="ordersView">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Vendor Store</th>
+                            <th>Customer</th>
+                            <th>Product & Qty</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminOrdersBody">
+                        <tr>
+                            <td colspan="6" class="text-center">Loading all orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Vendors View -->
+            <div id="vendorsView" style="display: none;">
+                <!-- Add Vendor Form -->
+                <form id="adminAddVendorForm" class="customer-order box-shadow"
+                    style="max-width: 100%; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; padding: 1.5rem; margin-bottom: 2rem;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Vendor Name</label>
+                        <input type="text" id="adminVendorName" placeholder="Name" required />
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Store Name</label>
+                        <input type="text" id="adminVendorStore" placeholder="Store Name" required />
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Phone Number</label>
+                        <input type="text" id="adminVendorPhone" placeholder="+91..." required />
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Email Address</label>
+                        <input type="email" id="adminVendorEmail" placeholder="Email" required />
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Password</label>
+                        <input type="text" id="adminVendorPassword" placeholder="Password" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-bottom: 0;">Add Vendor</button>
+                    <div style="flex-basis: 100%; margin-top: 0.5rem;" id="adminAddVendorMsg" class="message"></div>
+                </form>
+
+                <div class="table-container fade-in">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Joined Date</th>
+                                <th>Vendor Name</th>
+                                <th>Store Name</th>
+                                <th>Email</th>
+                                <th>Phone Number</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminVendorsBody">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading all vendors...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

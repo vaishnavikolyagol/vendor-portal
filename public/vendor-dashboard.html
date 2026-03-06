@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - Local Vendor Digitalization</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-body">
+
+    <header>
+        <div class="container navbar">
+            <h1 class="logo">VendorPortal</h1>
+            <nav>
+                <span id="vendorName" class="vendor-nav-name">Hello, Vendor</span>
+                <button class="btn btn-outline" onclick="logout()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Analytics Section -->
+        <section class="analytics-row fade-in">
+            <div class="stat-card box-shadow">
+                <h4>Total Revenue</h4>
+                <p id="stat-revenue">₹0</p>
+            </div>
+            <div class="stat-card box-shadow">
+                <h4>Total Orders</h4>
+                <p id="stat-orders">0</p>
+            </div>
+            <div class="stat-card box-shadow">
+                <h4>Pending Orders</h4>
+                <p id="stat-pending">0</p>
+            </div>
+        </section>
+
+        <section class="dashboard-section fade-in">
+            <div class="tab-buttons" style="margin-bottom: 2rem;">
+                <button class="tab-btn active" onclick="switchVendorTab('orders')" id="vtab-orders">Live Orders</button>
+                <button class="tab-btn" onclick="switchVendorTab('menu')" id="vtab-menu">Manage Products</button>
+            </div>
+
+            <!-- Orders View -->
+            <div id="vendorOrdersView">
+                <div class="header-split">
+                    <h2>Live Orders</h2>
+                    <button class="btn btn-primary" onclick="fetchOrders()">Refresh Orders</button>
+                </div>
+
+                <div class="table-container fade-in">
+                    <table id="ordersTable" class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <tr>
+                                <td colspan="7" class="text-center">Loading orders...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Menu View -->
+            <div id="vendorMenuView" style="display: none;">
+                <div class="header-split">
+                    <h2>Your Product Menu</h2>
+                </div>
+
+                <form id="addMenuForm" class="customer-order box-shadow"
+                    style="max-width: 100%; display: flex; gap: 1rem; align-items: flex-end; padding: 1.5rem; margin-bottom: 2rem;">
+                    <div class="form-group" style="flex: 2; margin-bottom: 0;">
+                        <label>Product Name</label>
+                        <input type="text" id="menuItemName" placeholder="E.g. Fresh Tomatoes 1kg" required />
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Price (₹)</label>
+                        <input type="number" id="menuItemPrice" placeholder="E.g. 50" min="1" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-bottom: 0;">Add Product</button>
+                </form>
+
+                <div class="table-container fade-in">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="menuBody">
+                            <tr>
+                                <td colspan="3" class="text-center">Loading menu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/vendor.js"></script>
+</body>
+
+</html>

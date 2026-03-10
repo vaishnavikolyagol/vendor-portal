@@ -171,13 +171,18 @@ async function fetchMenu() {
         tbody.innerHTML = '';
 
         if (!currentVendor || !currentVendor.menu || currentVendor.menu.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center">Your menu is empty. Add products above.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center">Your menu is empty. Add products above.</td></tr>`;
             return;
         }
 
         currentVendor.menu.forEach(item => {
             const tr = document.createElement('tr');
+            const imgHtml = item.image
+                ? `<img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">`
+                : '<span style="color: #666; font-size: 0.9rem;">No Image</span>';
+
             tr.innerHTML = `
+                <td>${imgHtml}</td>
                 <td>${item.name}</td>
                 <td>₹${item.price}</td>
                 <td><button class="btn btn-outline" style="border-color: #e74c3c; color: #e74c3c; padding: 0.2rem 0.5rem;" onclick="deleteMenuItem('${item._id}')">Delete</button></td>
@@ -191,9 +196,36 @@ async function fetchMenu() {
 
 document.getElementById('addMenuForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+
     const name = document.getElementById('menuItemName').value;
     const price = document.getElementById('menuItemPrice').value;
+    const imageInput = document.getElementById('menuItemImage');
     const token = localStorage.getItem('vendorToken');
+
+    let base64Image = null;
+
+    // Convert file to base64 if it exists
+    if (imageInput.files && imageInput.files[0]) {
+        const file = imageInput.files[0];
+
+        // Ensure it's not too big (e.g. max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File is too large! Please upload an image under 2MB.');
+            btn.disabled = false;
+            btn.textContent = 'Add Product';
+            return;
+        }
+
+        const reader = new FileReader();
+        base64Image = await new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
 
     try {
         const response = await fetch(`${API_URL}/vendors/menu`, {
@@ -202,7 +234,7 @@ document.getElementById('addMenuForm')?.addEventListener('submit', async (e) => 
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ name, price: Number(price) })
+            body: JSON.stringify({ name, price: Number(price), image: base64Image })
         });
 
         if (response.ok) {
@@ -213,6 +245,9 @@ document.getElementById('addMenuForm')?.addEventListener('submit', async (e) => 
         }
     } catch (err) {
         console.error('Add menu err:', err);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Add Product';
     }
 });
 

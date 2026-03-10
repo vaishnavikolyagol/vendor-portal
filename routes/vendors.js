@@ -33,12 +33,12 @@ router.get('/', async (req, res) => {
 // Description: Add an item to the vendor's menu
 router.post('/menu', authMiddleware, async (req, res) => {
     try {
-        const { name, price } = req.body;
+        const { name, price, image } = req.body;
         if (!name || !price) return res.status(400).json({ error: 'Name and price are required' });
 
         const vendor = await Vendor.findByIdAndUpdate(
             req.user.id,
-            { $push: { menu: { name, price } } },
+            { $push: { menu: { name, price, image } } },
             { new: true }
         );
 

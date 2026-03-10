@@ -44,6 +44,9 @@ document.getElementById('vendorSelect')?.addEventListener('change', (e) => {
             const opt = document.createElement('option');
             opt.value = item.name;
             opt.dataset.price = item.price;
+            if (item.image) {
+                opt.dataset.image = item.image;
+            }
             opt.textContent = `${item.name} - ₹${item.price}`;
             prodSelect.appendChild(opt);
         });
@@ -59,14 +62,26 @@ function calculateTotal() {
     const prodSelect = document.getElementById('productSelect');
     const qtyInput = document.getElementById('quantity');
     const amountInput = document.getElementById('amount');
+    const imgContainer = document.getElementById('productImagePreviewContainer');
+    const imgPreview = document.getElementById('productImagePreview');
 
     if (prodSelect.selectedIndex > 0) {
         const selectedOption = prodSelect.options[prodSelect.selectedIndex];
         const price = parseFloat(selectedOption.dataset.price);
         const qty = parseInt(qtyInput.value) || 1;
         amountInput.value = (price * qty).toFixed(0);
+
+        // Show image if available
+        if (selectedOption.dataset.image) {
+            imgPreview.src = selectedOption.dataset.image;
+            imgContainer.style.display = 'block';
+        } else {
+            imgContainer.style.display = 'none';
+        }
+
     } else {
         amountInput.value = '';
+        imgContainer.style.display = 'none';
     }
 }
 

@@ -1,10 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
+    loadConfig();
     loadVendors();
     checkAuth();
 });
 
 // API Config
 const API_URL = '/api';
+
+// Fetch Config
+async function loadConfig() {
+    try {
+        const response = await fetch(`${API_URL}/config`);
+        const data = await response.json();
+        const display = document.getElementById('twilioPhoneNumberDisplay');
+        if (display && data.twilioPhoneNumber) {
+            display.textContent = data.twilioPhoneNumber;
+            document.getElementById('twilioSandboxBanner').style.display = 'block';
+        }
+    } catch(err) {
+        console.warn('Failed to load config', err);
+    }
+}
 
 let globalVendors = [];
 

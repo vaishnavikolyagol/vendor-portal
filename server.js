@@ -22,6 +22,13 @@ mongoose.connect(process.env.MONGODB_URI).then(() => console.log('MongoDB Atlas 
         process.exit(1);
     });
 
+// Public Config Route
+app.get('/api/config', (req, res) => {
+    res.json({
+        twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER || '+14155238886' // Fallback to default Twilio sandbox number
+    });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));

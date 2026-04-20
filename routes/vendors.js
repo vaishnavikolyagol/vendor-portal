@@ -66,4 +66,41 @@ router.delete('/menu/:itemId', authMiddleware, async (req, res) => {
     }
 });
 
+// Endpoint: PUT /api/vendors/profile
+// Description: Update vendor profile details
+router.put('/profile', authMiddleware, async (req, res) => {
+    try {
+        const { name, storeName, phoneNumber, email } = req.body;
+        
+        // Find by ID and update
+        const updatedVendor = await Vendor.findByIdAndUpdate(
+            req.user.id,
+            { name, storeName, phoneNumber, email },
+            { new: true, runValidators: true }
+        ).select('-password'); // Exclude password from the returned document
+
+        if (!updatedVendor) {
+            return res.status(404).json({ error: 'Vendor not found.' });
+        }
+
+        res.status(200).json({ message: 'Profile updated successfully', vendor: updatedVendor });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ error: 'Server error while updating profile.' });
+    }
+});
+
+// Endpoint: GET /api/vendors/profile
+// Description: Get vendor profile details
+router.get('/profile', authMiddleware, async (req, res) => {
+    try {
+        const vendor = await Vendor.findById(req.user.id).select('-password');
+        if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+        res.status(200).json(vendor);
+    } catch (error) {
+        console.error('Get profile error:', error);
+        res.status(500).json({ error: 'Server error while fetching profile' });
+    }
+});
+
 module.exports = router;

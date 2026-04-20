@@ -67,7 +67,7 @@
                     <div class="form-group" style="display: flex; gap: 1rem; align-items: flex-start;">
                         <div style="flex: 1;">
                             <label for="productSelect">Available Products</label>
-                            <select id="productSelect" required disabled>
+                            <select id="productSelect" disabled>
                                 <option value="" disabled selected>Select a vendor first...</option>
                             </select>
                         </div>
@@ -81,16 +81,25 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="quantity">Quantity</label>
-                            <input type="number" id="quantity" value="1" min="1" required />
+                            <input type="number" id="quantity" value="1" min="1" />
                         </div>
                         <div class="form-group">
-                            <label for="amount">Total Amount (₹)</label>
-                            <input type="number" id="amount" placeholder="0" min="0" required readonly
+                            <label for="amount">Item Amount (₹)</label>
+                            <input type="number" id="amount" placeholder="0" min="0" readonly
                                 style="background: rgba(0,0,0,0.4);" />
                         </div>
                     </div>
+                    
+                    <button type="button" class="btn btn-outline full-width" id="addCartBtn" style="margin-bottom: 1rem;">Add Product to Order</button>
 
-                    <button type="submit" class="btn btn-primary full-width" id="placeOrderBtn">
+                    <!-- Cart List -->
+                    <div id="cartContainer" style="display: none; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h4 style="margin-top: 0; color: #f093fb;">Your Order List</h4>
+                        <ul id="cartList" style="list-style: none; padding: 0; margin: 0 0 1rem 0;"></ul>
+                        <strong>Grand Total: ₹<span id="cartGrandTotal">0</span></strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary full-width" id="placeOrderBtn" style="display: none;">
                         Place Order
                     </button>
                     <div id="orderMessage" class="message"></div>

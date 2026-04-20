@@ -162,8 +162,10 @@ async function updateOrderStatus(orderId, newStatus) {
 function switchVendorTab(tabName) {
     document.getElementById('vtab-orders').classList.remove('active');
     document.getElementById('vtab-menu').classList.remove('active');
+    document.getElementById('vtab-settings').classList.remove('active');
     document.getElementById('vendorOrdersView').style.display = 'none';
     document.getElementById('vendorMenuView').style.display = 'none';
+    document.getElementById('vendorSettingsView').style.display = 'none';
 
     if (tabName === 'orders') {
         document.getElementById('vtab-orders').classList.add('active');
@@ -173,8 +175,81 @@ function switchVendorTab(tabName) {
         document.getElementById('vtab-menu').classList.add('active');
         document.getElementById('vendorMenuView').style.display = 'block';
         fetchMenu();
+    } else if (tabName === 'settings') {
+        document.getElementById('vtab-settings').classList.add('active');
+        document.getElementById('vendorSettingsView').style.display = 'block';
+        fetchProfile();
     }
 }
+
+async function fetchProfile() {
+    const token = localStorage.getItem('vendorToken');
+    try {
+        const response = await fetch(`${API_URL}/vendors/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('editName').value = data.name;
+            document.getElementById('editStore').value = data.storeName;
+            document.getElementById('editPhone').value = data.phoneNumber;
+            document.getElementById('editEmail').value = data.email;
+        }
+    } catch (err) {
+        console.error('Failed to load profile', err);
+    }
+}
+
+document.getElementById('editProfileForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('updateProfileBtn');
+    const msg = document.getElementById('editProfileMessage');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    msg.textContent = '';
+    
+    const payload = {
+        name: document.getElementById('editName').value,
+        storeName: document.getElementById('editStore').value,
+        phoneNumber: document.getElementById('editPhone').value,
+        email: document.getElementById('editEmail').value
+    };
+
+    const token = localStorage.getItem('vendorToken');
+    try {
+        const response = await fetch(`${API_URL}/vendors/profile`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            msg.textContent = 'Profile updated successfully!';
+            msg.className = 'message msg-success';
+            
+            // Update local storage so navbar name updates on refresh
+            const vendorInfo = JSON.parse(localStorage.getItem('vendorInfo'));
+            if(vendorInfo) {
+                vendorInfo.storeName = data.vendor.storeName;
+                localStorage.setItem('vendorInfo', JSON.stringify(vendorInfo));
+                document.getElementById('vendorName').textContent = `Store: ${vendorInfo.storeName}`;
+            }
+        } else {
+            msg.textContent = data.error || 'Failed to update profile';
+            msg.className = 'message msg-error';
+        }
+    } catch (err) {
+        msg.textContent = 'Network error during save';
+        msg.className = 'message msg-error';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+    }
+});
 
 async function fetchMenu() {
     try {

@@ -23,6 +23,7 @@ async function loadConfig() {
 }
 
 let globalVendors = [];
+let cartItems = [];
 
 // --- Vendor Loading (Customer Side) ---
 async function loadVendors() {
@@ -53,6 +54,10 @@ document.getElementById('vendorSelect')?.addEventListener('change', (e) => {
     const prodSelect = document.getElementById('productSelect');
 
     prodSelect.innerHTML = '<option value="" disabled selected>Select a product...</option>';
+    
+    // Clear cart if vendor changes
+    cartItems = [];
+    renderCart();
 
     if (vendor && vendor.menu && vendor.menu.length > 0) {
         prodSelect.disabled = false;
@@ -104,6 +109,68 @@ function calculateTotal() {
 document.getElementById('productSelect')?.addEventListener('change', calculateTotal);
 document.getElementById('quantity')?.addEventListener('input', calculateTotal);
 
+// --- Cart Logic ---
+document.getElementById('addCartBtn')?.addEventListener('click', () => {
+    const prodSelect = document.getElementById('productSelect');
+    const qtyInput = document.getElementById('quantity');
+    const amountInput = document.getElementById('amount');
+    
+    if (prodSelect.selectedIndex <= 0) {
+        alert("Please select a product first");
+        return;
+    }
+    
+    const qty = parseInt(qtyInput.value) || 1;
+    const name = prodSelect.value;
+    const amount = parseInt(amountInput.value);
+    
+    cartItems.push({ name, qty, amount });
+    
+    // Reset product selection loosely
+    prodSelect.selectedIndex = 0;
+    qtyInput.value = 1;
+    calculateTotal();
+    
+    renderCart();
+});
+
+function renderCart() {
+    const container = document.getElementById('cartContainer');
+    const list = document.getElementById('cartList');
+    const grandTotal = document.getElementById('cartGrandTotal');
+    const placeBtn = document.getElementById('placeOrderBtn');
+    
+    if (cartItems.length === 0) {
+        container.style.display = 'none';
+        placeBtn.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    placeBtn.style.display = 'block';
+    
+    list.innerHTML = '';
+    let total = 0;
+    
+    cartItems.forEach((item, index) => {
+        total += item.amount;
+        const li = document.createElement('li');
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+        li.style.padding = '0.5rem 0';
+        li.innerHTML = `<span>${item.name} (x${item.qty})</span> <span>₹${item.amount} <button type="button" class="btn btn-outline" style="padding: 0.1rem 0.4rem; margin-left: 0.5rem; font-size: 0.8rem; border-color: #e74c3c; color: #e74c3c;" onclick="removeCartItem(${index})">X</button></span>`;
+        list.appendChild(li);
+    });
+    
+    grandTotal.textContent = total;
+}
+
+window.removeCartItem = function(index) {
+    cartItems.splice(index, 1);
+    renderCart();
+};
+
 // --- Order Placement ---
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -115,13 +182,21 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     msg.textContent = '';
     msg.className = 'message';
 
+    if (cartItems.length === 0) {
+        msg.textContent = 'Please add products to your order first.';
+        msg.classList.add('msg-error');
+        btn.disabled = false;
+        btn.textContent = 'Place Order';
+        return;
+    }
+
     const orderData = {
         vendorId: document.getElementById('vendorSelect').value,
         customerName: document.getElementById('cName').value,
         customerPhone: document.getElementById('cPhone').value,
-        productName: document.getElementById('productSelect').value,
-        quantity: parseInt(document.getElementById('quantity').value),
-        totalAmount: parseInt(document.getElementById('amount').value)
+        productName: cartItems.map(i => `${i.name} (x${i.qty})`).join(', '),
+        quantity: cartItems.reduce((acc, curr) => acc + curr.qty, 0),
+        totalAmount: cartItems.reduce((acc, curr) => acc + curr.amount, 0)
     };
 
     try {
@@ -137,6 +212,8 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
             msg.textContent = 'Order Placed Successfully!';
             msg.classList.add('msg-success');
             document.getElementById('orderForm').reset();
+            cartItems = [];
+            renderCart();
         } else {
             msg.textContent = data.error || 'Failed to place order.';
             msg.classList.add('msg-error');

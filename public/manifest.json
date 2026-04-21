@@ -1,0 +1,21 @@
+{
+  "name": "Local Vendor Portal",
+  "short_name": "VendorApp",
+  "description": "Order fresh products directly from local stores.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#1e1e24",
+  "theme_color": "#4facfe",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3714/3714324.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3714/3714324.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

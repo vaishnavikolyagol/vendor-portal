@@ -60,88 +60,65 @@ async function loadVendors() {
 document.getElementById('vendorSelect')?.addEventListener('change', (e) => {
     const vendorId = e.target.value;
     const vendor = globalVendors.find(v => v._id === vendorId);
-    const prodSelect = document.getElementById('productSelect');
-
-    prodSelect.innerHTML = '<option value="" disabled selected>Select a product...</option>';
+    const grid = document.getElementById('productGrid');
     
     // Clear cart if vendor changes
     cartItems = [];
     renderCart();
 
     if (vendor && vendor.menu && vendor.menu.length > 0) {
-        prodSelect.disabled = false;
-        vendor.menu.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item.name;
-            opt.dataset.price = item.price;
-            if (item.image) {
-                opt.dataset.image = item.image;
-            }
-            opt.textContent = `${item.name} - ₹${item.price}`;
-            prodSelect.appendChild(opt);
+        grid.style.display = 'grid';
+        grid.innerHTML = '';
+        vendor.menu.forEach((item, index) => {
+            const imgHtml = item.image ? `<img src="${item.image}" class="product-img" alt="${item.name}">` : `<div class="product-img" style="display:flex; align-items:center; justify-content:center; background:#f5f5f5; color:#999; font-size:2rem;">🛒</div>`;
+            
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                ${imgHtml}
+                <div class="product-info">
+                    <div class="product-title">${item.name}</div>
+                    <div class="product-price">₹${item.price}</div>
+                    <button type="button" class="product-add-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price})">Add to Cart</button>
+                </div>
+            `;
+            grid.appendChild(card);
         });
     } else {
-        prodSelect.innerHTML = '<option value="" disabled selected>No products available</option>';
-        prodSelect.disabled = true;
+        grid.style.display = 'block';
+        grid.innerHTML = '<p style="text-align:center; padding: 2rem;">No products available</p>';
     }
-    calculateTotal();
 });
-
-// Calculate Total based on product and quantity
-function calculateTotal() {
-    const prodSelect = document.getElementById('productSelect');
-    const qtyInput = document.getElementById('quantity');
-    const amountInput = document.getElementById('amount');
-    const imgContainer = document.getElementById('productImagePreviewContainer');
-    const imgPreview = document.getElementById('productImagePreview');
-
-    if (prodSelect.selectedIndex > 0) {
-        const selectedOption = prodSelect.options[prodSelect.selectedIndex];
-        const price = parseFloat(selectedOption.dataset.price);
-        const qty = parseInt(qtyInput.value) || 1;
-        amountInput.value = (price * qty).toFixed(0);
-
-        // Show image if available
-        if (selectedOption.dataset.image) {
-            imgPreview.src = selectedOption.dataset.image;
-            imgContainer.style.display = 'block';
-        } else {
-            imgContainer.style.display = 'none';
-        }
-
-    } else {
-        amountInput.value = '';
-        imgContainer.style.display = 'none';
-    }
-}
-
-document.getElementById('productSelect')?.addEventListener('change', calculateTotal);
-document.getElementById('quantity')?.addEventListener('input', calculateTotal);
 
 // --- Cart Logic ---
-document.getElementById('addCartBtn')?.addEventListener('click', () => {
-    const prodSelect = document.getElementById('productSelect');
-    const qtyInput = document.getElementById('quantity');
-    const amountInput = document.getElementById('amount');
-    
-    if (prodSelect.selectedIndex <= 0) {
-        alert("Please select a product first");
-        return;
+window.addToCart = function(name, price) {
+    // Check if it already exists in cart to increment qty instead
+    const existing = cartItems.find(i => i.name === name);
+    if (existing) {
+        existing.qty += 1;
+        existing.amount = existing.qty * price;
+    } else {
+        cartItems.push({ name, qty: 1, amount: price, unitPrice: price });
     }
     
-    const qty = parseInt(qtyInput.value) || 1;
-    const name = prodSelect.value;
-    const amount = parseInt(amountInput.value);
-    
-    cartItems.push({ name, qty, amount });
-    
-    // Reset product selection loosely
-    prodSelect.selectedIndex = 0;
-    qtyInput.value = 1;
-    calculateTotal();
-    
     renderCart();
-});
+    
+    // Create a mini toast effect or alert
+    const grid = document.getElementById('productGrid');
+    grid.style.opacity = '0.5';
+    setTimeout(() => grid.style.opacity = '1', 150);
+};
+
+window.decreaseCartQty = function(index) {
+    const item = cartItems[index];
+    if (item.qty > 1) {
+        item.qty -= 1;
+        item.amount = item.qty * item.unitPrice;
+    } else {
+        cartItems.splice(index, 1);
+    }
+    renderCart();
+};
 
 function renderCart() {
     const container = document.getElementById('cartContainer');
@@ -168,7 +145,20 @@ function renderCart() {
         li.style.justifyContent = 'space-between';
         li.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
         li.style.padding = '0.5rem 0';
-        li.innerHTML = `<span>${item.name} (x${item.qty})</span> <span>₹${item.amount} <button type="button" class="btn btn-outline" style="padding: 0.1rem 0.4rem; margin-left: 0.5rem; font-size: 0.8rem; border-color: #e74c3c; color: #e74c3c;" onclick="removeCartItem(${index})">X</button></span>`;
+        li.innerHTML = `
+            <div style="display:flex; flex-direction:column; width:100%;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-weight:500;">
+                    <span>${item.name}</span>
+                    <span>₹${item.amount}</span>
+                </div>
+                <div style="display:flex; align-items:center;">
+                    <button type="button" class="btn btn-outline" style="padding:0.1rem 0.5rem; border-color:#ccc;" onclick="decreaseCartQty(${index})">-</button>
+                    <span style="margin:0 0.8rem;">${item.qty}</span>
+                    <button type="button" class="btn btn-outline" style="padding:0.1rem 0.5rem; border-color:#ccc;" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.unitPrice})">+</button>
+                    <button type="button" class="btn btn-outline" style="padding:0.1rem 0.4rem; margin-left:auto; border-color:#e74c3c; color:#e74c3c;" onclick="removeCartItem(${index})">Remove</button>
+                </div>
+            </div>
+        `;
         list.appendChild(li);
     });
     
@@ -563,3 +553,24 @@ document.addEventListener('keydown', (e) => {
         promptAdminLogin();
     }
 });
+
+// --- Share App Logic ---
+async function shareApp() {
+    const shareData = {
+        title: 'VendorPortal',
+        text: 'Order fresh products directly from local stores on VendorPortal!',
+        url: window.location.href
+    };
+
+    try {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else {
+            // Fallback for desktop browsers without Web Share API
+            await navigator.clipboard.writeText(window.location.href);
+            alert('App Link copied to clipboard!');
+        }
+    } catch (err) {
+        console.error('Error sharing app:', err);
+    }
+}

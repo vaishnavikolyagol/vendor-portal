@@ -21,11 +21,11 @@
     <header>
         <div class="container navbar">
             <h1 class="logo">VendorPortal</h1>
-            <nav>
-                <a href="#customer-section" class="nav-link">Order</a>
-                <button id="navAdminBtn" class="btn btn-outline" style="margin-right: 15px; display: none;"
-                    onclick="promptAdminLogin()">Admin Login</button>
-                <button id="navVendorBtn" class="btn btn-outline" onclick="toggleAuthModal()">Vendor Login</button>
+            <nav style="display: flex; align-items: center; gap: 10px;">
+                <a href="#customer-section" class="nav-link" style="margin-right: 0;">Order</a>
+                <button id="navShareBtn" class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="shareApp()">↗️ Share</button>
+                <button id="navAdminBtn" class="btn btn-outline" style="display: none;" onclick="promptAdminLogin()">Admin</button>
+                <button id="navVendorBtn" class="btn btn-outline" onclick="toggleAuthModal()">Vendor</button>
             </nav>
         </div>
     </header>
@@ -72,37 +72,14 @@
                         </div>
                     </div>
 
-                    <div class="form-group" style="display: flex; gap: 1rem; align-items: flex-start;">
-                        <div style="flex: 1;">
-                            <label for="productSelect">Available Products</label>
-                            <select id="productSelect" disabled>
-                                <option value="" disabled selected>Select a vendor first...</option>
-                            </select>
-                        </div>
-                        <div id="productImagePreviewContainer"
-                            style="display: none; width: 80px; height: 80px; flex-shrink: 0; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
-                            <img id="productImagePreview" src="" alt="Product Preview"
-                                style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
+                    <!-- Realistic E-commerce Grid -->
+                    <div id="productGrid" class="product-grid" style="display: none;">
+                        <!-- Product cards dynamically injected here -->
                     </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="quantity">Quantity</label>
-                            <input type="number" id="quantity" value="1" min="1" />
-                        </div>
-                        <div class="form-group">
-                            <label for="amount">Item Amount (₹)</label>
-                            <input type="number" id="amount" placeholder="0" min="0" readonly
-                                style="background: rgba(0,0,0,0.4);" />
-                        </div>
-                    </div>
-                    
-                    <button type="button" class="btn btn-outline full-width" id="addCartBtn" style="margin-bottom: 1rem;">Add Product to Order</button>
 
                     <!-- Cart List -->
-                    <div id="cartContainer" style="display: none; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <h4 style="margin-top: 0; color: #f093fb;">Your Order List</h4>
+                    <div id="cartContainer" style="display: none; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h4 style="margin-top: 0; color: #333;">Your Order List</h4>
                         <ul id="cartList" style="list-style: none; padding: 0; margin: 0 0 1rem 0;"></ul>
                         <strong>Grand Total: ₹<span id="cartGrandTotal">0</span></strong>
                         

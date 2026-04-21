@@ -33,13 +33,22 @@ async function loadVendors() {
         globalVendors = vendors; // Store for menu lookups
 
         const select = document.getElementById('vendorSelect');
+        const reviewSelect = document.getElementById('reviewVendorSelect');
         select.innerHTML = '<option value="" disabled selected>Select a vendor...</option>';
+        if(reviewSelect) reviewSelect.innerHTML = '<option value="" disabled selected>Select a vendor...</option>';
 
         vendors.forEach(v => {
             const option = document.createElement('option');
             option.value = v._id;
             option.textContent = `${v.storeName} (${v.name})`;
             select.appendChild(option);
+            
+            if(reviewSelect) {
+                const opt2 = document.createElement('option');
+                opt2.value = v._id;
+                opt2.textContent = `${v.storeName} (${v.name})`;
+                reviewSelect.appendChild(opt2);
+            }
         });
     } catch (error) {
         console.error('Error loading vendors:', error);
@@ -232,15 +241,21 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
 function switchCustomerTab(tab) {
     document.getElementById('ctab-place').classList.remove('active');
     document.getElementById('ctab-track').classList.remove('active');
+    if(document.getElementById('ctab-reviews')) document.getElementById('ctab-reviews').classList.remove('active');
+    
     document.getElementById('customerPlaceView').style.display = 'none';
     document.getElementById('customerTrackView').style.display = 'none';
+    if(document.getElementById('customerReviewsView')) document.getElementById('customerReviewsView').style.display = 'none';
 
     if (tab === 'place') {
         document.getElementById('ctab-place').classList.add('active');
         document.getElementById('customerPlaceView').style.display = 'block';
-    } else {
+    } else if (tab === 'track') {
         document.getElementById('ctab-track').classList.add('active');
         document.getElementById('customerTrackView').style.display = 'block';
+    } else if (tab === 'reviews') {
+        document.getElementById('ctab-reviews').classList.add('active');
+        document.getElementById('customerReviewsView').style.display = 'block';
     }
 }
 
@@ -303,6 +318,90 @@ document.getElementById('trackForm')?.addEventListener('submit', async (e) => {
     } finally {
         btn.disabled = false;
         btn.textContent = 'Track';
+    }
+});
+
+// --- Reviews Logic ---
+function renderVendorReviews(vendorId) {
+    const list = document.getElementById('reviewsList');
+    list.innerHTML = '';
+    const vendor = globalVendors.find(v => v._id === vendorId);
+    
+    if (!vendor || !vendor.reviews || vendor.reviews.length === 0) {
+        list.innerHTML = '<p style="color: #bbb;">No reviews yet for this vendor. Be the first!</p>';
+        return;
+    }
+    
+    vendor.reviews.slice().reverse().forEach(r => {
+        const div = document.createElement('div');
+        div.style.background = 'rgba(255,255,255,0.05)';
+        div.style.padding = '1rem';
+        div.style.borderRadius = '8px';
+        div.style.marginBottom = '1rem';
+        
+        let stars = '';
+        for(let i=0; i<5; i++) stars += (i < r.rating) ? '⭐' : '☆';
+        
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <strong>${r.customerName}</strong>
+                <span>${stars}</span>
+            </div>
+            <p style="margin: 0; color: #ddd; font-size: 0.95rem;">${r.comment || ''}</p>
+        `;
+        list.appendChild(div);
+    });
+}
+
+document.getElementById('reviewVendorSelect')?.addEventListener('change', (e) => {
+    const vendorId = e.target.value;
+    document.getElementById('vendorReviewsDisplay').style.display = 'block';
+    renderVendorReviews(vendorId);
+});
+
+document.getElementById('writeReviewForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const vendorId = document.getElementById('reviewVendorSelect').value;
+    const btn = document.getElementById('submitReviewBtn');
+    const msg = document.getElementById('reviewMessage');
+    
+    btn.disabled = true;
+    msg.textContent = 'Submitting...';
+    
+    const payload = {
+        customerName: document.getElementById('reviewName').value,
+        rating: parseInt(document.getElementById('reviewRating').value),
+        comment: document.getElementById('reviewComment').value
+    };
+    
+    try {
+        const response = await fetch(`${API_URL}/vendors/${vendorId}/reviews`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            // Update global record
+            const vendor = globalVendors.find(v => v._id === vendorId);
+            if (vendor) vendor.reviews = data.reviews;
+            
+            msg.textContent = 'Review submitted successfully!';
+            msg.className = 'message msg-success';
+            document.getElementById('writeReviewForm').reset();
+            renderVendorReviews(vendorId);
+        } else {
+            const errData = await response.json();
+            msg.textContent = errData.error || 'Failed to submit review.';
+            msg.className = 'message msg-error';
+        }
+    } catch(err) {
+        msg.textContent = 'Network error.';
+        msg.className = 'message msg-error';
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => msg.textContent = '', 3000);
     }
 });
 

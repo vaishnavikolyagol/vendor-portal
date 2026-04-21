@@ -16,12 +16,35 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
+// Endpoint: POST /api/vendors/:id/reviews
+// Description: Add a review for a specific vendor
+router.post('/:id/reviews', async (req, res) => {
+    try {
+        const { customerName, rating, comment } = req.body;
+        if (!customerName || !rating || rating < 1 || rating > 5) {
+            return res.status(400).json({ error: 'Name and a valid rating (1-5) are required.' });
+        }
+
+        const vendor = await Vendor.findByIdAndUpdate(
+            req.params.id,
+            { $push: { reviews: { customerName, rating, comment } } },
+            { new: true }
+        );
+
+        if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+        res.status(200).json({ message: 'Review added successfully!', reviews: vendor.reviews });
+    } catch (error) {
+        console.error('Error adding review:', error);
+        res.status(500).json({ error: 'Server error while adding review.' });
+    }
+});
+
 // Endpoint: GET /api/vendors
 // Description: Get all vendors (public route for customers to discover)
 router.get('/', async (req, res) => {
     try {
-        // Only return non-sensitive fields, including the menu
-        const vendors = await Vendor.find({}, 'name storeName _id menu');
+        // Only return non-sensitive fields, including the menu and reviews
+        const vendors = await Vendor.find({}, 'name storeName _id menu reviews');
         res.status(200).json(vendors);
     } catch (error) {
         console.error('Error fetching vendors:', error);

@@ -101,11 +101,10 @@ async function fetchOrders() {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${date}</td>
-                    <td>${order.customerName}</td>
-                    <td>${order.customerPhone}</td>
+                    <td>${order.customerName}<br><small>${order.customerPhone}</small></td>
                     <td>${order.productName}</td>
-                    <td>${order.quantity}</td>
                     <td>₹${order.totalAmount}</td>
+                    <td><span style="font-size: 0.85rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px;">${order.paymentMethod || 'Cash'}</span></td>
                     <td style="display: flex; align-items: center; gap: 10px;">${actionHtml}</td>
                 `;
                 tbody.appendChild(tr);

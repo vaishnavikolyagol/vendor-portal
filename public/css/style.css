@@ -593,3 +593,98 @@ select option {
     border-bottom: 1px solid #eee !important;
     color: #333 !important;
 }
+
+/* App-like Vendor Scroll UI */
+.vendor-list-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    scrollbar-width: none; /* Firefox */
+}
+.vendor-list-scroll::-webkit-scrollbar {
+    display: none; /* Chrome */
+}
+
+.vendor-app-card {
+    min-width: 130px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.vendor-app-card.selected {
+    background: rgba(79, 172, 254, 0.2);
+    border-color: #4facfe;
+    box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+}
+.vendor-app-card:hover {
+    transform: scale(1.05);
+}
+.vendor-app-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+.vendor-app-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.vendor-app-owner {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Mobile Bottom Navigation */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #1e2130;
+    border-top: 1px solid var(--border-light);
+    z-index: 1000;
+    justify-content: space-around;
+    padding: 0.8rem 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    gap: 0.3rem;
+    cursor: pointer;
+}
+
+.bottom-nav-item.active {
+    color: #4facfe;
+}
+
+.bottom-nav-icon {
+    font-size: 1.3rem;
+}
+
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: flex;
+    }
+    .customer-order {
+        margin-bottom: 6rem; /* Make room for bottom nav */
+    }
+    .tab-buttons {
+        display: none; /* Hide top tabs on mobile, prefer bottom nav */
+    }
+}

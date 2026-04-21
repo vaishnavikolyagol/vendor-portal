@@ -54,21 +54,22 @@
             <!-- Place Order View -->
             <div id="customerPlaceView">
                 <form id="orderForm">
-                    <div class="form-group">
-                        <label for="vendorSelect">Select Local Vendor</label>
-                        <select id="vendorSelect" required>
-                            <option value="" disabled selected>Loading vendors...</option>
-                        </select>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <h3 style="font-size:1.4rem; color: #fff; margin-bottom: 1rem; text-align:left;">Stores Near You</h3>
+                        <div id="vendorAppList" class="vendor-list-scroll">
+                            <p style="color:#bbb;">Loading local stores...</p>
+                        </div>
                     </div>
+                    
+                    <!-- Hidden actual select for form submission payload compatibility -->
+                    <select id="vendorSelect" required style="display:none;"></select>
 
-                    <div class="form-row">
+                    <div class="form-row" style="margin-top: 1rem;">
                         <div class="form-group">
-                            <label for="cName">Your Name</label>
-                            <input type="text" id="cName" placeholder="E.g. Rahul Sharma" required />
+                            <input type="text" id="cName" placeholder="Your Name" required />
                         </div>
                         <div class="form-group">
-                            <label for="cPhone">Your Phone Number</label>
-                            <input type="tel" id="cPhone" placeholder="E.g. 9876543210" required />
+                            <input type="tel" id="cPhone" placeholder="Your Phone Number" required />
                         </div>
                     </div>
 
@@ -172,6 +173,26 @@
             </div>
         </section>
     </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-item active" onclick="switchCustomerTab('place')" id="bnav-place">
+            <span class="bottom-nav-icon">🏠</span>
+            <span>Home</span>
+        </div>
+        <div class="bottom-nav-item" onclick="switchCustomerTab('track')" id="bnav-track">
+            <span class="bottom-nav-icon">📦</span>
+            <span>Orders</span>
+        </div>
+        <div class="bottom-nav-item" onclick="switchCustomerTab('reviews')" id="bnav-reviews">
+            <span class="bottom-nav-icon">⭐</span>
+            <span>Reviews</span>
+        </div>
+        <div class="bottom-nav-item" onclick="toggleAuthModal()">
+            <span class="bottom-nav-icon">🏪</span>
+            <span>Vendor</span>
+        </div>
+    </nav>
 
     <!-- Auth Modal (Login / Register) -->
     <div id="authModal" class="modal">

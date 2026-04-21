@@ -34,8 +34,11 @@ async function loadVendors() {
 
         const select = document.getElementById('vendorSelect');
         const reviewSelect = document.getElementById('reviewVendorSelect');
+        const vendorAppList = document.getElementById('vendorAppList');
+
         select.innerHTML = '<option value="" disabled selected>Select a vendor...</option>';
         if(reviewSelect) reviewSelect.innerHTML = '<option value="" disabled selected>Select a vendor...</option>';
+        if(vendorAppList) vendorAppList.innerHTML = '';
 
         vendors.forEach(v => {
             const option = document.createElement('option');
@@ -48,6 +51,27 @@ async function loadVendors() {
                 opt2.value = v._id;
                 opt2.textContent = `${v.storeName} (${v.name})`;
                 reviewSelect.appendChild(opt2);
+            }
+
+            if(vendorAppList) {
+                const card = document.createElement('div');
+                card.className = 'vendor-app-card';
+                // Pick a random emoji to mimic realistic store icons based on index
+                const emojis = ['🏬', '🍎', '🥩', '🏪', '🥐', '🥦'];
+                const emoji = emojis[v._id.charCodeAt(v._id.length-1) % emojis.length] || '🏬';
+
+                card.innerHTML = `
+                    <div class="vendor-app-icon">${emoji}</div>
+                    <div class="vendor-app-name">${v.storeName}</div>
+                    <div class="vendor-app-owner">${v.name}</div>
+                `;
+                card.onclick = () => {
+                    document.querySelectorAll('.vendor-app-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    select.value = v._id;
+                    select.dispatchEvent(new Event('change'));
+                };
+                vendorAppList.appendChild(card);
             }
         });
     } catch (error) {
@@ -152,9 +176,9 @@ function renderCart() {
                     <span>₹${item.amount}</span>
                 </div>
                 <div style="display:flex; align-items:center;">
-                    <button type="button" class="btn btn-outline" style="padding:0.1rem 0.5rem; border-color:#ccc;" onclick="decreaseCartQty(${index})">-</button>
-                    <span style="margin:0 0.8rem;">${item.qty}</span>
-                    <button type="button" class="btn btn-outline" style="padding:0.1rem 0.5rem; border-color:#ccc;" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.unitPrice})">+</button>
+                    <button type="button" class="btn btn-outline" style="padding:0.1rem 0.5rem; border-color:#ccc; color:#333;" onclick="decreaseCartQty(${index})">-</button>
+                    <span style="margin:0 0.8rem; color:#333;">${item.qty}</span>
+                    <button type="button" class="btn btn-outline" style="padding:0.1rem 0.5rem; border-color:#ccc; color:#333;" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.unitPrice})">+</button>
                     <button type="button" class="btn btn-outline" style="padding:0.1rem 0.4rem; margin-left:auto; border-color:#e74c3c; color:#e74c3c;" onclick="removeCartItem(${index})">Remove</button>
                 </div>
             </div>
@@ -229,9 +253,15 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
 
 // --- Customer Tabs & Tracking ---
 function switchCustomerTab(tab) {
+    // Top Tabs
     document.getElementById('ctab-place').classList.remove('active');
     document.getElementById('ctab-track').classList.remove('active');
     if(document.getElementById('ctab-reviews')) document.getElementById('ctab-reviews').classList.remove('active');
+    
+    // Bottom Nav Tabs
+    if(document.getElementById('bnav-place')) document.getElementById('bnav-place').classList.remove('active');
+    if(document.getElementById('bnav-track')) document.getElementById('bnav-track').classList.remove('active');
+    if(document.getElementById('bnav-reviews')) document.getElementById('bnav-reviews').classList.remove('active');
     
     document.getElementById('customerPlaceView').style.display = 'none';
     document.getElementById('customerTrackView').style.display = 'none';
@@ -239,12 +269,15 @@ function switchCustomerTab(tab) {
 
     if (tab === 'place') {
         document.getElementById('ctab-place').classList.add('active');
+        if(document.getElementById('bnav-place')) document.getElementById('bnav-place').classList.add('active');
         document.getElementById('customerPlaceView').style.display = 'block';
     } else if (tab === 'track') {
         document.getElementById('ctab-track').classList.add('active');
+        if(document.getElementById('bnav-track')) document.getElementById('bnav-track').classList.add('active');
         document.getElementById('customerTrackView').style.display = 'block';
     } else if (tab === 'reviews') {
         document.getElementById('ctab-reviews').classList.add('active');
+        if(document.getElementById('bnav-reviews')) document.getElementById('bnav-reviews').classList.add('active');
         document.getElementById('customerReviewsView').style.display = 'block';
     }
 }
